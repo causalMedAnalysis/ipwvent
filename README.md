@@ -1,1 +1,2 @@
 # ipwvent
+ipwvent is a stata module to perform causal mediation analysis of interventional direct and indirect effects using inverse probability weighting. Three models are estimated to construct the weights: a logit model for the exposure conditional on baseline covariates (if specified), a model for an exposure-induced confounder given the exposure and baseline covaiates, and a model for the mediator conditional on the exposure, exposure-induced confounder, and baseline covariates.
