@@ -1,0 +1,35 @@
+{smcl}
+{txt}{sf}{ul off}
+{.-}
+{s6hlp}
+package ^ipwvent^ from https://github.com/causalMedAnalysis/ipwvent
+{smcl}
+{.-}
+{s6hlp}
+
+{smcl}
+{hilite:TITLE}{p 6 8}'IPWVENT': mediation analysis of interventional effects using inverse probability weighting{p_end}
+{s6hlp}
+
+^DESCRIPTION/AUTHOR(S)^
+      
+ipwvent performs causal mediation analysis of interventional direct and indirect effects using 
+inverse probability weighting. Three models are estimated to construct the weights: a logit model 
+for the exposure conditional on baseline covariates (if specified), a model for an exposure-induced
+confounder given the exposure and baseline covaiates, and a model for the mediator conditional
+on the exposure, exposure-induced confounder, and baseline covariates.
+      
+Requires: Stata version 15
+      
+Distribution-Date: 20240724
+      
+Author: Geoff Wodtke, University of Chicago
+Support: email wodtke@@uchicago.edu
+      
+
+^INSTALLATION FILES^                              (type ^net install^ ^ipwvent^)
+      ipwvent.ado
+	  ipwventbs.ado
+      ipwvent.sthlp
+
+{txt}{sf}{ul off}
