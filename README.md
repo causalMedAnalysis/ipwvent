@@ -74,7 +74,7 @@ Email: [wodtke@uchicago.edu](mailto:wodtke@uchicago.edu)
 
 ## References
 
-- Wodtke GT, Zhou X, and Elwert F. Causal Mediation Analysis. In preparation.
+- Wodtke GT and Zhou X. Causal Mediation Analysis. In preparation.
 
 ## Also See
 
