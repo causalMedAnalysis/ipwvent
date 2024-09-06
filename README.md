@@ -5,25 +5,26 @@
 ## Syntax
 
 ```stata
-ipwvent varname, dvar(varname) mvar(varname) lvar(varname) mreg(string) lreg(string) d(real) dstar(real) m(real) [options]
+ipwvent depvar, dvar(varname) mvar(varname) lvar(varname) d(real) dstar(real) m(real) mreg(string) lreg(string) [options]
 ```
 
 ### Required Arguments
 
-- `varname`: Specifies the outcome variable.
+- `depvar`: Specifies the outcome variable.
 - `dvar(varname)`: Specifies the treatment (exposure) variable, must be binary and coded 0/1.
 - `mvar(varname)`: Specifies the mediator variable, can be binary, continuous, or count.
 - `lvar(varname)`: Specifies a single exposure-induced confounder, must be binary (0/1) or ordinal. Multiple exposure-induced confounders are not supported.
-- `mreg(string)`: Regression model for the mediator; options are `regress`, `logit`, or `poisson`.
-- `lreg(string)`: Regression model for the exposure-induced confounder; options are `logit` or `ologit`.
 - `d(real)`: Reference level of treatment.
 - `dstar(real)`: Alternative level of treatment, defining the treatment contrast of interest.
 - `m(real)`: Level of the mediator at which the controlled direct effect is evaluated.
+- `mreg(string)`: Regression model for the mediator; options are `regress`, `logit`, or `poisson`.
+- `lreg(string)`: Regression model for the exposure-induced confounder; options are `logit` or `ologit`.
 
 ### Options
 
 - `cvars(varlist)`: Baseline covariates to include in the analysis.
-- `weights(varname)`: Specifies a variable containing sampling weights.
+- `censor`: Specifies that the inverse probability weights are censored at 1st and 99th percentiles.
+- `sampwts(varname)`: Specifies a variable containing sampling weights.
 - `nointeraction`: Excludes treatment-mediator interaction in the outcome model.
 - `cxd`: Includes all two-way interactions between the treatment and baseline covariates in models for the exposure-induced confounder and mediator.
 - `lxd`: Includes two-way interaction between the treatment and exposure-induced confounder in the mediator model.
