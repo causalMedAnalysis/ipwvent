@@ -8,7 +8,7 @@ program define ipwventbs, rclass
 	
 	version 15	
 
-	syntax varname(numeric) [if][in], ///
+	syntax varlist(min=1 max=1 numeric) [if][in], ///
 		dvar(varname numeric) ///
 		mvar(varname numeric) ///
 		lvar(varname numeric) ///
@@ -22,6 +22,7 @@ program define ipwventbs, rclass
 		[cxd] ///
 		[lxd] ///
 		[sampwts(varname numeric)] ///
+		[censor] ///
 		[detail]
 	
 	qui {
@@ -33,9 +34,9 @@ program define ipwventbs, rclass
 			
 	local yvar `varlist'
 	
-	/*********************
-	VARIABLE EXISTS ERRORS
-	**********************/
+	/*****
+	ERRORS
+	******/
 	local ipw_var_names "sw1_r001 sw2_r001 sw3_r001 sw4_r001"
 		foreach name of local ipw_var_names {
 			capture confirm new variable `name'
@@ -84,9 +85,6 @@ program define ipwventbs, rclass
 				}
 			}
 	
-	/**************
-	REG TYPE ERRORS
-	***************/
 	local mregtypes regress logit poisson
 	local nmreg : list posof "`mreg'" in mregtypes
 	if !`nmreg' {
@@ -443,16 +441,21 @@ program define ipwventbs, rclass
 	/*************
 	CENSOR WEIGHTS
 	**************/
-	foreach i of var sw1_r001 sw2_r001 sw3_r001 sw4_r001 {
-			qui replace `i'=`i' * `wts' if `touse'
+	if ("`censor'"!="") {
+		foreach i of var sw1_r001 sw2_r001 sw3_r001 sw4_r001 {
 			qui centile `i' if `i'!=. & `touse', c(1 99) 
 			qui replace `i'=r(c_1) if `i'<r(c_1) & `i'!=. & `touse'
 			qui replace `i'=r(c_2) if `i'>r(c_2) & `i'!=. & `touse'
-			}
+		}
+	}
 	
 	/***********************
 	COMPUTE EFFECT ESTIMATES
 	************************/
+	foreach i of var sw1_r001 sw2_r001 sw3_r001 sw4_r001 {
+		qui replace `i'=`i' * `wts' if `touse'
+	}
+				
 	qui reg `yvar' [pw=sw1_r001] if `dvar'==`dstar' & `touse'
 	local Ehat_Y0M0=_b[_cons]
 		
@@ -469,7 +472,11 @@ program define ipwventbs, rclass
 	return scalar iie=`Ehat_Y1M1'-`Ehat_Y1M0'
 	return scalar cde=(_b[`dvar']+(_b[`inter']*`m'))*(`d'-`dstar')
 	
-	est drop Dmodel_given_C_r001 Dmodel_r001 Lmodel_given_CD_r001 Mmodel_given_CDL_r001 Mmodel_given_D_r001
+	est drop ///
+		Dmodel_given_C_r001 Dmodel_r001 ///
+		Lmodel_given_CD_r001 ///
+		Mmodel_given_CDL_r001 Mmodel_given_D_r001
+	
 	drop phat*_r001 mhat*_r001 `wts'
 	
 	if ("`detail'"=="") {

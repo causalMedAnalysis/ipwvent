@@ -8,7 +8,7 @@ program define ipwvent, eclass
 
 	version 15	
 
-	syntax varname(numeric) [if][in], ///
+	syntax varlist(min=1 max=1 numeric) [if][in], ///
 		dvar(varname numeric) ///
 		mvar(varname numeric) ///
 		lvar(varname numeric) ///
@@ -54,7 +54,7 @@ program define ipwvent, eclass
 			dvar(`dvar') mvar(`mvar') lvar(`lvar') cvars(`cvars') ///
 			d(`d') dstar(`dstar') m(`m') ///
 			mreg(`mreg') lreg(`lreg') sampwts(`sampwts') ///
-			`nointeraction'  `cxd' `lxd'
+			`nointeraction' `cxd' `lxd' `censor'
 			}
 
 	if ("`saving'" == "") {
@@ -65,7 +65,7 @@ program define ipwvent, eclass
 			dvar(`dvar') mvar(`mvar') lvar(`lvar') cvars(`cvars') ///
 			d(`d') dstar(`dstar') m(`m') ///
 			mreg(`mreg') lreg(`lreg') sampwts(`sampwts') ///
-			`nointeraction'  `cxd' `lxd'
+			`nointeraction'  `cxd' `lxd' `censor'
 			}
 			
 	estat bootstrap, p noheader
@@ -76,7 +76,7 @@ program define ipwvent, eclass
 		dvar(`dvar') mvar(`mvar') lvar(`lvar') cvars(`cvars') ///
 		d(`d') dstar(`dstar') m(`m') ///
 		mreg(`mreg') lreg(`lreg') sampwts(`sampwts') ///
-		`nointeraction'  `cxd' `lxd' `detail'
+		`nointeraction' `cxd' `lxd' `censor' `detail'
 		
 		label var sw1_r001 "IPW for estimating E(Y(d*,Mtilde(d*|C)))"
 		label var sw2_r001 "IPW for estimating E(Y(d,Mtilde(d|C)))"

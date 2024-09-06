@@ -13,25 +13,36 @@
 {title:Syntax}
 
 {p 8 18 2}
-{cmd:ipwvent} {varname} {ifin}{cmd:,} dvar({varname}) mvar({varname}) lvar({varname}) 
-mreg(string) lreg(string) d({it:real}) dstar({it:real}) m({it:real}) [cvars({varlist}))
-weights(varname) nointeraction cxd lxd 
-{reps({it:integer}) strata({varname}) cluster({varname}) level(cilevel) seed({it:passthru})]
+{cmd:ipwvent} {depvar} {ifin}{cmd:,} 
+{opt dvar(varname)} 
+{opt mvar(varname)} 
+{opt lvar(varname)} 
+{opt d(real)} 
+{opt dstar(real)} 
+{opt m(real)} 
+{opt mreg(string)} 
+{opt lreg(string)} 
+{opt cvars(varlist)}
+{opt censor}
+{opt sampwts(varname)} 
+{opt nointeraction} 
+{opt cxd} 
+{opt lxd}
+{opt reps(integer 200)} 
+{opt strata(varname)} 
+{opt cluster(varname)} 
+{opt level(cilevel)} 
+{opt seed(passthru)}
+{opt detail}
 
 
-{phang}{opt varname} - this specifies the outcome variable.
+{phang}{opt depvar} - this specifies the outcome variable.
 
 {phang}{opt dvar(varname)} - this specifies the treatment (exposure) variable. This variable must be binary (0/1).
 
 {phang}{opt mvar(varname)} - this specifies the mediator variable. This variable may be binary (0/1), continuous, or a count.
 
 {phang}{opt lvar(varname)} - this specifies the exposure-induced confounder. This variable may be binary (0/1) or ordinal.
-
-{phang}{opt mreg}{cmd:(}{it:string}{cmd:)}} - this specifies the form of regression model to be estimated for the mediator. 
-Options are {opt regress}, {opt logit}, or {opt poisson}.
-
-{phang}{opt lreg}{cmd:(}{it:string}{cmd:)}} - this specifies the form of regression model to be estimated for the exposure-induced confounder. 
-Options are {opt logit} or {opt ologit}.
 
 {phang}{opt d(real)} - this specifies the reference level of treatment.
 
@@ -41,12 +52,20 @@ the treatment contrast of interest.
 {phang}{opt m(real)} - this specifies the level of the mediator at which the controlled direct effect 
 is evaluated.
 
+{phang}{opt mreg}{cmd:(}{it:string}{cmd:)}} - this specifies the form of regression model to be estimated for the mediator. 
+Options are {opt regress}, {opt logit}, or {opt poisson}.
+
+{phang}{opt lreg}{cmd:(}{it:string}{cmd:)}} - this specifies the form of regression model to be estimated for the exposure-induced confounder. 
+Options are {opt logit} or {opt ologit}.
+
 {title:Options}
 
 {phang}{opt cvars(varlist)} - this option specifies the list of baseline covariates to be included in the analysis. Categorical 
 variables need to be coded as a series of dummy variables before being entered as covariates.
 
-{phang}{opt weights(varname)} - this option specifies a variable containing sampling weights to include in the analysis.
+{phang}{opt censor} - this option specifies that the inverse probability weights are censored at their 1st and 99th percentiles.
+
+{phang}{opt sampwts(varname)} - this option specifies a variable containing sampling weights to include in the analysis.
 
 {phang}{opt nointer:action} - this option specifies whether a treatment-mediator interaction is not to be
 included in the outcome model when estimating the controlled direct effect (the default assumes an interaction is present).
@@ -95,11 +114,11 @@ interventional indirect effect, and the overall effect.{p_end}
  
 {pstd} percentile bootstrap CIs with default settings: {p_end}
  
-{phang2}{cmd:. ipwvent std_cesd_age40, dvar(att22) lvar(ever_unemp_age3539) mvar(log_faminc_adj_age3539) cvars(female black hispan paredu parprof parinc_prank famsize afqt3) mreg(regress) lreg(logit) d(1) dstar(0) m(10.82) reps(200)} {p_end}
+{phang2}{cmd:. ipwvent std_cesd_age40, dvar(att22) lvar(ever_unemp_age3539) mvar(log_faminc_adj_age3539) cvars(female black hispan paredu parprof parinc_prank famsize afqt3) mreg(regress) lreg(logit) d(1) dstar(0) m(10.82) reps(1000)} {p_end}
 
 {pstd} all two-way interactions between the confounders and exposure; percentile bootstrap CIs with default settings: {p_end}
  
-{phang2}{cmd:. ipwvent std_cesd_age40, dvar(att22) lvar(ever_unemp_age3539) mvar(log_faminc_adj_age3539) cvars(female black hispan paredu parprof parinc_prank famsize afqt3) mreg(regress) lreg(logit) cxd lxd d(1) dstar(0) m(10.82) reps(200)} {p_end}
+{phang2}{cmd:. ipwvent std_cesd_age40, dvar(att22) lvar(ever_unemp_age3539) mvar(log_faminc_adj_age3539) cvars(female black hispan paredu parprof parinc_prank famsize afqt3) mreg(regress) lreg(logit) cxd lxd d(1) dstar(0) m(10.82) reps(1000)} {p_end}
 
 {title:Saved results}
 
