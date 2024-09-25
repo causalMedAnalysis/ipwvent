@@ -29,6 +29,7 @@ ipwvent depvar, dvar(varname) mvar(varname) lvar(varname) d(real) dstar(real) m(
 - `lxd`: Includes two-way interaction between the treatment and exposure-induced confounder in the mediator model.
 - `censor`: Specifies that the inverse probability weights are censored at 1st and 99th percentiles.
 - `detail`: Prints fitted models and saves variables containing the inverse probability weights.
+- `bootstrap_options`: All `bootstrap` options are available.
 
 ## Description
 
