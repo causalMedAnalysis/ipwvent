@@ -114,7 +114,7 @@ program define ipwventbs, rclass
 	
 	if ("`lxd'"!="") {	
 		tempvar lxd_var
-		qui gen `lxd_var' = `dvar' * `lvar'
+		qui gen `lxd_var' = `dvar' * `lvar' if `touse'
 	}
 		
 	/***************************************
@@ -181,48 +181,36 @@ program define ipwventbs, rclass
 	qui est restore Lmodel_given_CD_r001
 	
 	foreach level in `levels' {
+		
 		qui replace `dvar'=1 if `touse'
 		
 		if ("`cxd'"!="") {	
-			foreach c in `cvar' {
+			foreach c in `cvars' {
 				qui replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 			}
 		}					
 
-		if ("`lxd'"!="") {	
-			qui replace `lxd_var' = `dvar' * `lvar'
-		}
-			
 		qui predict phat_L`level'_CD1_r001 if e(sample), pr outcome(`level')
 			
-		qui replace `dvar'=0
+		qui replace `dvar'=0 if `touse'
 		
 		if ("`cxd'"!="") {	
-			foreach c in `cvar' {
+			foreach c in `cvars' {
 				qui replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 			}
 		}					
-
-		if ("`lxd'"!="") {	
-			qui replace `lxd_var' = `dvar' * `lvar'
-		}
 
 		qui predict phat_L`level'_CD0_r001 if e(sample), pr outcome(`level')
 	}
 	
 	qui replace `dvar' = ``dvar'_orig' if `touse'
-	qui replace `lvar' = ``lvar'_orig' if `touse'
 
 	if ("`cxd'"!="") {	
-		foreach c in `cvar' {
+		foreach c in `cvars' {
 			qui replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 		}
 	}					
 
-	if ("`lxd'"!="") {	
-		qui replace `lxd_var' = `dvar' * `lvar'
-	}
-	
 	/*****MVAR*****/
 	qui est restore Mmodel_given_CDL_r001
 	
@@ -230,33 +218,35 @@ program define ipwventbs, rclass
 	qui gen phat_M_CD0L_r001=. if `touse'
 	
 	foreach level in `levels' {
+	
 		qui replace `lvar'=`level' if `touse'
 		
 		if ("`mreg'"=="logit") {
-			qui replace `dvar'=1
+		
+			qui replace `dvar'=1 if `touse'
 			
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					qui replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 				}
 			}					
 
 			if ("`lxd'"!="") {	
-				qui replace `lxd_var' = `dvar' * `lvar'
+				qui replace `lxd_var' = `dvar' * `lvar' if `touse'
 			}
 			
 			qui predict phat_M1_CD1L`level'_r001 if e(sample), pr 
 			
-			qui replace `dvar'=0
+			qui replace `dvar'=0 if `touse'
 			
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					qui replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 				}
 			}					
 
 			if ("`lxd'"!="") {	
-				qui replace `lxd_var' = `dvar' * `lvar'
+				qui replace `lxd_var' = `dvar' * `lvar' if `touse'
 			}
 
 			qui predict phat_M1_CD0L`level'_r001 if e(sample), pr 
@@ -269,16 +259,17 @@ program define ipwventbs, rclass
 		}
 		
 		if ("`mreg'"=="poisson") {
+		
 			qui replace `dvar'=1 if `touse'
 
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					qui replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 				}
 			}					
 
 			if ("`lxd'"!="") {	
-				qui replace `lxd_var' = `dvar' * `lvar'
+				qui replace `lxd_var' = `dvar' * `lvar' if `touse'
 			}
 
 			qui predict mhat_M_CD1L`level'_r001 if e(sample)
@@ -286,13 +277,13 @@ program define ipwventbs, rclass
 			qui replace `dvar'=0 if `touse'
 			
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					qui replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 				}
 			}					
 
 			if ("`lxd'"!="") {	
-				qui replace `lxd_var' = `dvar' * `lvar'
+				qui replace `lxd_var' = `dvar' * `lvar' if `touse'
 			}
 
 			qui predict mhat_M_CD0L`level'_r001 if e(sample)
@@ -305,16 +296,17 @@ program define ipwventbs, rclass
 		}
 		
 		if ("`mreg'"=="regress") {
+		
 			qui replace `dvar'=1 if `touse'
 			
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					qui replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 				}
 			}					
 
 			if ("`lxd'"!="") {	
-				qui replace `lxd_var' = `dvar' * `lvar'
+				qui replace `lxd_var' = `dvar' * `lvar' if `touse'
 			}
 
 			qui predict mhat_M_CD1L`level'_r001 if e(sample), xb
@@ -322,13 +314,13 @@ program define ipwventbs, rclass
 			qui replace `dvar'=0 if `touse'
 			
 			if ("`cxd'"!="") {	
-				foreach c in `cvar' {
+				foreach c in `cvars' {
 					qui replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 				}
 			}					
 
 			if ("`lxd'"!="") {	
-				qui replace `lxd_var' = `dvar' * `lvar'
+				qui replace `lxd_var' = `dvar' * `lvar' if `touse'
 			}
 
 			qui predict mhat_M_CD0L`level'_r001 if e(sample), xb
@@ -345,13 +337,13 @@ program define ipwventbs, rclass
 	qui replace `lvar' = ``lvar'_orig' if `touse'
 	
 	if ("`cxd'"!="") {	
-		foreach c in `cvar' {
+		foreach c in `cvars' {
 			qui replace ``dvar'X`c'' = `dvar' * `c' if `touse'
 		}
 	}					
 
 	if ("`lxd'"!="") {	
-		qui replace `lxd_var' = `dvar' * `lvar'
+		qui replace `lxd_var' = `dvar' * `lvar' if `touse'
 	}
 	
 	if ("`mreg'"=="logit") {
@@ -394,7 +386,7 @@ program define ipwventbs, rclass
 	
 	foreach level in `levels' {
 		qui replace sw1_r001 = sw1_r001 + (phat_M_CD`dstar'L`level'_r001 * phat_L`level'_CD`dstar'_r001) if `dvar'==`dstar' & `touse'
-		}
+	}
 	
 	qui replace sw1_r001 = sw1_r001 / (phat_D`dstar'_C_r001 * phat_M_CD`dstar'L_r001) if `dvar'==`dstar' & `touse'
 	qui replace sw1_r001 = sw1_r001 * phat_D`dstar'_r001 if `dvar'==`dstar' & `touse'
@@ -404,7 +396,7 @@ program define ipwventbs, rclass
 	
 	foreach level in `levels' {
 		qui replace sw2_r001 = sw2_r001 + (phat_M_CD`d'L`level'_r001 * phat_L`level'_CD`d'_r001) if `dvar'==`d' & `touse'
-		}
+	}
 	
 	qui replace sw2_r001 = sw2_r001 / (phat_D`d'_C_r001 * phat_M_CD`d'L_r001) if `dvar'==`d' & `touse'
 	qui replace sw2_r001 = sw2_r001 * phat_D`d'_r001 if `dvar'==`d' & `touse' 
@@ -414,7 +406,7 @@ program define ipwventbs, rclass
 	
 	foreach level in `levels' {
 		qui replace sw3_r001 = sw3_r001 + (phat_M_CD`dstar'L`level'_r001 * phat_L`level'_CD`dstar'_r001) if `dvar'==`d' & `touse'
-		}
+	}
 	
 	qui replace sw3_r001 = sw3_r001 / (phat_D`d'_C_r001 * phat_M_CD`d'L_r001) if `dvar'==`d' & `touse'
 	qui replace sw3_r001 = sw3_r001 * phat_D`d'_r001 if `dvar'==`d' & `touse'	
