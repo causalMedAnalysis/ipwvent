@@ -17,18 +17,13 @@ program define ipwvent, eclass
 		d(real) ///
 		dstar(real) ///
 		m(real) ///
-		[NOINTERaction] ///
-		[cvars(varlist numeric)] ///
-		[cxd] ///
-		[lxd] ///
-		[sampwts(varname numeric)] ///
-		[detail] ///
-		[reps(integer 200)] ///
-		[strata(varname numeric)] ///
-		[cluster(varname numeric)] ///
-		[level(cilevel)] ///
-		[seed(passthru)] ///
-		[saving(string)]
+		[NOINTERaction ///
+		cvars(varlist numeric) ///
+		cxd ///
+		lxd ///
+		sampwts(varname numeric) ///
+		censor ///
+		detail * ]
 
 	qui {
 		marksample touse
@@ -36,52 +31,60 @@ program define ipwvent, eclass
 		if r(N) == 0 error 2000
 	}
 	
-	foreach i in `dvar' {
-		confirm variable `i'
-		qui sum `i'
-		if r(min) != 0 | r(max) != 1 {
-		display as error "{p 0 0 5 0} The variable `i' is not binary and coded 0/1"
-        error 198
-		}
+	confirm variable `dvar'
+	qui levelsof `dvar', local(levels)
+	if "`levels'" != "0 1" & "`levels'" != "1 0" {
+		display as error "The variable `i' is not binary and coded 0/1"
+		error 198
 	}
+	
+	local mregtypes regress logit poisson
+	local nmreg : list posof "`mreg'" in mregtypes
+	if !`nmreg' {
+		display as error "Error: mreg must be chosen from: `mregtypes'."
+		error 198		
+	}
+	else {
+		local mreg : word `nmreg' of `mregtypes'
+	}	
+
+	local lregtypes logit ologit 
+	local nlreg : list posof "`lreg'" in lregtypes
+	if !`nlreg' {
+		display as error "Error: lreg must be chosen from: `lregtypes'."
+		error 198		
+	}
+	else {
+		local lreg : word `nlreg' of `lregtypes'
+	}	
 
 	/***COMPUTE POINT AND INTERVAL ESTIMATES***/
-	if ("`saving'" != "") {
-		bootstrap OE=r(oe) IDE=r(ide) IIE=r(iie) CDE=r(cde), ///
-			reps(`reps') strata(`strata') cluster(`cluster') level(`level') `seed' ///
-			saving(`saving', replace) noheader notable: ///
-			ipwventbs `varlist' if `touse', ///
-			dvar(`dvar') mvar(`mvar') lvar(`lvar') cvars(`cvars') ///
-			d(`d') dstar(`dstar') m(`m') ///
-			mreg(`mreg') lreg(`lreg') sampwts(`sampwts') ///
-			`nointeraction' `cxd' `lxd' `censor'
-			}
-
-	if ("`saving'" == "") {
-		bootstrap OE=r(oe) IDE=r(ide) IIE=r(iie) CDE=r(cde), ///
-			reps(`reps') strata(`strata') cluster(`cluster') level(`level') `seed' ///
-			noheader notable: ///
-			ipwventbs `varlist' if `touse', ///
-			dvar(`dvar') mvar(`mvar') lvar(`lvar') cvars(`cvars') ///
-			d(`d') dstar(`dstar') m(`m') ///
-			mreg(`mreg') lreg(`lreg') sampwts(`sampwts') ///
-			`nointeraction'  `cxd' `lxd' `censor'
-			}
+	bootstrap ///
+		OE=r(oe) ///
+		IDE=r(ide) ///
+		IIE=r(iie) ///
+		CDE=r(cde), ///
+			noheader notable `options' : ///
+				ipwventbs `varlist' if `touse', ///
+					dvar(`dvar') mvar(`mvar') lvar(`lvar') cvars(`cvars') ///
+					d(`d') dstar(`dstar') m(`m') ///
+					mreg(`mreg') lreg(`lreg') sampwts(`sampwts') ///
+					`nointeraction'  `cxd' `lxd' `censor'
 			
 	estat bootstrap, p noheader
-	
+
 	/***REPORT MODELS AND SAVE WEIGHTS IF REQUESTED***/
 	if ("`detail'" != "") {
 		ipwventbs `varlist' if `touse', ///
-		dvar(`dvar') mvar(`mvar') lvar(`lvar') cvars(`cvars') ///
-		d(`d') dstar(`dstar') m(`m') ///
-		mreg(`mreg') lreg(`lreg') sampwts(`sampwts') ///
-		`nointeraction' `cxd' `lxd' `censor' `detail'
+			dvar(`dvar') mvar(`mvar') lvar(`lvar') cvars(`cvars') ///
+			d(`d') dstar(`dstar') m(`m') ///
+			mreg(`mreg') lreg(`lreg') sampwts(`sampwts') ///
+			`nointeraction' `cxd' `lxd' `censor' `detail'
 		
 		label var sw1_r001 "IPW for estimating E(Y(d*,Mtilde(d*|C)))"
 		label var sw2_r001 "IPW for estimating E(Y(d,Mtilde(d|C)))"
 		label var sw3_r001 "IPW for estimating E(Y(d,Mtilde(d*|C)))"
 		label var sw4_r001 "IPW for estimating E(Y(d,m))"
-		}
+	}
 	
 end ipwvent

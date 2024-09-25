@@ -30,7 +30,7 @@ program define ipwventbs, rclass
 		count if `touse'
 		if r(N) == 0 error 2000
 		local N = r(N)
-		}
+	}
 			
 	local yvar `varlist'
 	
@@ -38,73 +38,53 @@ program define ipwventbs, rclass
 	ERRORS
 	******/
 	local ipw_var_names "sw1_r001 sw2_r001 sw3_r001 sw4_r001"
-		foreach name of local ipw_var_names {
-			capture confirm new variable `name'
-			if _rc {
-				display as error "{p 0 0 5 0}The command needs to create weight variables"
-				display as error "with the following names: `ipw_var_names', "
-				display as error "but these variables have already been defined.{p_end}"
-				error 110
-				}
-			}
+	foreach name of local ipw_var_names {
+		capture confirm new variable `name'
+		if _rc {
+			display as error "{p 0 0 5 0}The command needs to create weight variables"
+			display as error "with the following names: `ipw_var_names', "
+			display as error "but these variables have already been defined.{p_end}"
+			error 110
+		}
+	}
 
 	local sampwt_var_names "wt_r001 wt_r002 wt_r003"
-		foreach name of local sampwt_var_names {
-			capture confirm new variable `name'
-			if !_rc {
-				local wts `name'
-				continue, break
-				}
-			}
-			if _rc {
-				display as error "{p 0 0 5 0}The command needs to create a weight variable"
-				display as error "with one of the following names: `sampwt_var_names', "
-				display as error "but these variables have already been defined.{p_end}"
-				error 110
-			}
+	foreach name of local sampwt_var_names {
+		capture confirm new variable `name'
+		if !_rc {
+			local wts `name'
+			continue, break
+		}
+	}
+	if _rc {
+		display as error "{p 0 0 5 0}The command needs to create a weight variable"
+		display as error "with one of the following names: `sampwt_var_names', "
+		display as error "but these variables have already been defined.{p_end}"
+		error 110
+	}
 
 	local phat_var_names "phat_D1_C_r001 phat_D0_C_r001 phat_D1_r001 phat_D0_r001 phat_L0_CD1_r001 phat_L0_CD0_r001 phat_L1_CD1_r001 phat_L1_CD0_r001 phat_M_CD1L_r001 phat_M_CD0L_r001 phat_M_CD1L0_r001 phat_M_CD0L0_r001 phat_M_CD1L1_r001 phat_M_CD0L1_r001 phat_M_CDL_r001 phat_M_D_r001"
-		foreach name of local phat_var_names {
-			capture confirm new variable `name'
-			if _rc {
-				display as error "{p 0 0 5 0}The command needs to create a variable"
-				display as error "with the following name: `name', "
-				display as error "but this variable has already been defined.{p_end}"
-				error 110
-				}
-			}
+	foreach name of local phat_var_names {
+		capture confirm new variable `name'
+		if _rc {
+			display as error "{p 0 0 5 0}The command needs to create a variable"
+			display as error "with the following name: `name', "
+			display as error "but this variable has already been defined.{p_end}"
+			error 110
+		}
+	}
 
 	local mhat_var_names "mhat_M_CD1L0_r001 mhat_M_CD0L0_r001 mhat_M_CD1L1_r001 mhat_M_CD0L1_r001 mhat_M_CDL_r001 mhat_M_D_r001"
-		foreach name of local mhat_var_names {
-			capture confirm new variable `name'
-			if _rc {
-				display as error "{p 0 0 5 0}The command needs to create a variable"
-				display as error "with the following name: `name', "
-				display as error "but this variable has already been defined.{p_end}"
-				error 110
-				}
-			}
+	foreach name of local mhat_var_names {
+		capture confirm new variable `name'
+		if _rc {
+			display as error "{p 0 0 5 0}The command needs to create a variable"
+			display as error "with the following name: `name', "
+			display as error "but this variable has already been defined.{p_end}"
+			error 110
+		}
+	}
 	
-	local mregtypes regress logit poisson
-	local nmreg : list posof "`mreg'" in mregtypes
-	if !`nmreg' {
-		display as error "Error: mreg must be chosen from: `mregtypes'."
-		error 198		
-		}
-	else {
-		local mreg : word `nmreg' of `mregtypes'
-		}	
-
-	local lregtypes logit ologit 
-	local nlreg : list posof "`lreg'" in lregtypes
-	if !`nlreg' {
-		display as error "Error: lreg must be chosen from: `lregtypes'."
-		error 198		
-		}
-	else {
-		local lreg : word `nlreg' of `lregtypes'
-		}	
-
 	/**********************************
 	GENERATE AND SCALE SAMPLING WEIGHTS
 	***********************************/
@@ -114,28 +94,28 @@ program define ipwventbs, rclass
 		qui replace `wts' = `wts' * `sampwts'
 		qui sum `wts'
 		qui replace `wts' = `wts' / r(mean)
-		}
+	}
 
 	/****************************
 	GENERATE INTERACTION VARIABLE
 	*****************************/
 	if ("`nointeraction'" == "") {
 		tempvar inter
-		gen `inter' = `dvar' * `mvar' if `touse'
-		}
+		qui gen `inter' = `dvar' * `mvar' if `touse'
+	}
 	
 	if ("`cxd'"!="") {	
 		foreach c in `cvars' {
 			tempvar `dvar'X`c'
-			gen ``dvar'X`c'' = `dvar' * `c' if `touse'
+			qui gen ``dvar'X`c'' = `dvar' * `c' if `touse'
 			local cxd_vars `cxd_vars'  ``dvar'X`c''
-			}
 		}
+	}
 	
 	if ("`lxd'"!="") {	
 		tempvar lxd_var
-		gen `lxd_var' = `dvar' * `lvar'
-		}
+		qui gen `lxd_var' = `dvar' * `lvar'
+	}
 		
 	/***************************************
 	PLACEHOLDERS FOR ORIGINAL VALUES OF VARS
@@ -149,31 +129,38 @@ program define ipwventbs, rclass
 	/*********
 	FIT MODELS
 	**********/
-	
 	/*****DVAR*****/
+	di ""
+	di "Model for `dvar' conditional on {cvars}:"
 	logit `dvar' `cvars' [pw=`wts'] if `touse'
-	est store Dmodel_given_C_r001
+	qui est store Dmodel_given_C_r001
 		
 	qui logit `dvar' [pw=`wts'] if `touse'
-	est store Dmodel_r001
+	qui est store Dmodel_r001
 
 	/*****LVAR*****/
 	if ("`lreg'"=="logit") {
+		di ""
+		di "Model for `lvar' conditional on {cvars `dvar'}:"
 		logit `lvar' `dvar' `cvars' `cxd_vars' [pw=`wts'] if `touse'
 		qui ologit `lvar' `dvar' `cvars' `cxd_vars' [pw=`wts'] if `touse'
-		est store Lmodel_given_CD_r001
-		}
+		qui est store Lmodel_given_CD_r001
+	}
 	else {
+		di ""
+		di "Model for `lvar' conditional on {cvars `dvar'}:"
 		`lreg' `lvar' `dvar' `cvars' `cxd_vars' [pw=`wts'] if `touse'
-		est store Lmodel_given_CD_r001
-		}
+		qui est store Lmodel_given_CD_r001
+	}
 	
 	/*****MVAR*****/
-	`mreg' `mvar' `cvars' `dvar' `lvar' `cxd_vars' `lxd_var' [pw=`wts'] if `touse'
-	est store Mmodel_given_CDL_r001
+	di ""
+	di "Model for `mvar' conditional on {cvars `dvar' `lvar'}:"
+	`mreg' `mvar' `dvar' `lvar' `cvars' `cxd_vars' `lxd_var' [pw=`wts'] if `touse'
+	qui est store Mmodel_given_CDL_r001
 	
 	qui `mreg' `mvar' `dvar' [pw=`wts'] if `touse'
-	est store Mmodel_given_D_r001
+	qui est store Mmodel_given_D_r001
 	
 	/********************
 	COMPUTE PROBABILITIES
@@ -198,13 +185,13 @@ program define ipwventbs, rclass
 		
 		if ("`cxd'"!="") {	
 			foreach c in `cvar' {
-				replace ``dvar'X`c'' = `dvar' * `c' if `touse'
-				}
-			}					
+				qui replace ``dvar'X`c'' = `dvar' * `c' if `touse'
+			}
+		}					
 
 		if ("`lxd'"!="") {	
-			replace `lxd_var' = `dvar' * `lvar'
-			}
+			qui replace `lxd_var' = `dvar' * `lvar'
+		}
 			
 		qui predict phat_L`level'_CD1_r001 if e(sample), pr outcome(`level')
 			
@@ -212,29 +199,29 @@ program define ipwventbs, rclass
 		
 		if ("`cxd'"!="") {	
 			foreach c in `cvar' {
-				replace ``dvar'X`c'' = `dvar' * `c' if `touse'
-				}
-			}					
+				qui replace ``dvar'X`c'' = `dvar' * `c' if `touse'
+			}
+		}					
 
 		if ("`lxd'"!="") {	
-			replace `lxd_var' = `dvar' * `lvar'
-			}
+			qui replace `lxd_var' = `dvar' * `lvar'
+		}
 
 		qui predict phat_L`level'_CD0_r001 if e(sample), pr outcome(`level')
-		}
+	}
 	
 	qui replace `dvar' = ``dvar'_orig' if `touse'
 	qui replace `lvar' = ``lvar'_orig' if `touse'
 
 	if ("`cxd'"!="") {	
 		foreach c in `cvar' {
-			replace ``dvar'X`c'' = `dvar' * `c' if `touse'
-			}
-		}					
+			qui replace ``dvar'X`c'' = `dvar' * `c' if `touse'
+		}
+	}					
 
 	if ("`lxd'"!="") {	
-		replace `lxd_var' = `dvar' * `lvar'
-		}
+		qui replace `lxd_var' = `dvar' * `lvar'
+	}
 	
 	/*****MVAR*****/
 	qui est restore Mmodel_given_CDL_r001
@@ -250,13 +237,13 @@ program define ipwventbs, rclass
 			
 			if ("`cxd'"!="") {	
 				foreach c in `cvar' {
-					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
-					}
-				}					
+					qui replace ``dvar'X`c'' = `dvar' * `c' if `touse'
+				}
+			}					
 
 			if ("`lxd'"!="") {	
-				replace `lxd_var' = `dvar' * `lvar'
-				}
+				qui replace `lxd_var' = `dvar' * `lvar'
+			}
 			
 			qui predict phat_M1_CD1L`level'_r001 if e(sample), pr 
 			
@@ -264,13 +251,13 @@ program define ipwventbs, rclass
 			
 			if ("`cxd'"!="") {	
 				foreach c in `cvar' {
-					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
-					}
-				}					
+					qui replace ``dvar'X`c'' = `dvar' * `c' if `touse'
+				}
+			}					
 
 			if ("`lxd'"!="") {	
-				replace `lxd_var' = `dvar' * `lvar'
-				}
+				qui replace `lxd_var' = `dvar' * `lvar'
+			}
 
 			qui predict phat_M1_CD0L`level'_r001 if e(sample), pr 
 			
@@ -279,20 +266,20 @@ program define ipwventbs, rclass
 			
 			qui replace phat_M_CD1L_r001=phat_M_CD1L`level'_r001 if ``lvar'_orig'==`level' & `touse'
 			qui replace phat_M_CD0L_r001=phat_M_CD0L`level'_r001 if ``lvar'_orig'==`level' & `touse'
-			}
+		}
 		
 		if ("`mreg'"=="poisson") {
 			qui replace `dvar'=1 if `touse'
 
 			if ("`cxd'"!="") {	
 				foreach c in `cvar' {
-					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
-					}
-				}					
+					qui replace ``dvar'X`c'' = `dvar' * `c' if `touse'
+				}
+			}					
 
 			if ("`lxd'"!="") {	
-				replace `lxd_var' = `dvar' * `lvar'
-				}
+				qui replace `lxd_var' = `dvar' * `lvar'
+			}
 
 			qui predict mhat_M_CD1L`level'_r001 if e(sample)
 			
@@ -300,13 +287,13 @@ program define ipwventbs, rclass
 			
 			if ("`cxd'"!="") {	
 				foreach c in `cvar' {
-					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
-					}
-				}					
+					qui replace ``dvar'X`c'' = `dvar' * `c' if `touse'
+				}
+			}					
 
 			if ("`lxd'"!="") {	
-				replace `lxd_var' = `dvar' * `lvar'
-				}
+				qui replace `lxd_var' = `dvar' * `lvar'
+			}
 
 			qui predict mhat_M_CD0L`level'_r001 if e(sample)
 			
@@ -315,20 +302,20 @@ program define ipwventbs, rclass
 			
 			qui replace phat_M_CD1L_r001=phat_M_CD1L`level'_r001 if ``lvar'_orig'==`level' & `touse'
 			qui replace phat_M_CD0L_r001=phat_M_CD0L`level'_r001 if ``lvar'_orig'==`level' & `touse'
-			}
+		}
 		
 		if ("`mreg'"=="regress") {
 			qui replace `dvar'=1 if `touse'
 			
 			if ("`cxd'"!="") {	
 				foreach c in `cvar' {
-					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
-					}
-				}					
+					qui replace ``dvar'X`c'' = `dvar' * `c' if `touse'
+				}
+			}					
 
 			if ("`lxd'"!="") {	
-				replace `lxd_var' = `dvar' * `lvar'
-				}
+				qui replace `lxd_var' = `dvar' * `lvar'
+			}
 
 			qui predict mhat_M_CD1L`level'_r001 if e(sample), xb
 			
@@ -336,13 +323,13 @@ program define ipwventbs, rclass
 			
 			if ("`cxd'"!="") {	
 				foreach c in `cvar' {
-					replace ``dvar'X`c'' = `dvar' * `c' if `touse'
-					}
-				}					
+					qui replace ``dvar'X`c'' = `dvar' * `c' if `touse'
+				}
+			}					
 
 			if ("`lxd'"!="") {	
-				replace `lxd_var' = `dvar' * `lvar'
-				}
+				qui replace `lxd_var' = `dvar' * `lvar'
+			}
 
 			qui predict mhat_M_CD0L`level'_r001 if e(sample), xb
 	
@@ -351,58 +338,57 @@ program define ipwventbs, rclass
 			
 			qui replace phat_M_CD1L_r001=phat_M_CD1L`level'_r001 if ``lvar'_orig'==`level' & `touse'
 			qui replace phat_M_CD0L_r001=phat_M_CD0L`level'_r001 if ``lvar'_orig'==`level' & `touse'
-			}
 		}
+	}
 		
 	qui replace `dvar' = ``dvar'_orig' if `touse'
 	qui replace `lvar' = ``lvar'_orig' if `touse'
 	
 	if ("`cxd'"!="") {	
 		foreach c in `cvar' {
-			replace ``dvar'X`c'' = `dvar' * `c' if `touse'
-			}
-		}					
+			qui replace ``dvar'X`c'' = `dvar' * `c' if `touse'
+		}
+	}					
 
 	if ("`lxd'"!="") {	
-		replace `lxd_var' = `dvar' * `lvar'
-		}
+		qui replace `lxd_var' = `dvar' * `lvar'
+	}
 	
 	if ("`mreg'"=="logit") {
 		qui predict phat_M1_CDL_r001 if e(sample), pr 
 		qui gen phat_M_CDL_r001=binomialp(1, `mvar', phat_M1_CDL_r001) if `touse'
-		}
+	}
 		
 	if ("`mreg'"=="poisson") {
 		qui predict mhat_M_CDL_r001 if e(sample)
 		qui gen phat_M_CDL_r001=poissonp(mhat_M_CDL_r001, `mvar') if `touse'
-		}
+	}
 		
 	if ("`mreg'"=="regress") {
 		qui predict mhat_M_CDL_r001 if e(sample), xb
 		qui gen phat_M_CDL_r001=normalden(`mvar', mhat_M_CDL_r001, e(rmse)) if `touse'
-		}
+	}
 	
 	qui est restore Mmodel_given_D_r001
 	
 	if ("`mreg'"=="logit") {
 		qui predict phat_M1_D_r001 if e(sample), pr 
 		qui gen phat_M_D_r001=binomialp(1, `mvar', phat_M1_D_r001) if `touse'
-		}
+	}
 		
 	if ("`mreg'"=="poisson") {
 		qui predict mhat_M_D_r001 if e(sample)
 		qui gen phat_M_D_r001=poissonp(mhat_M_D_r001, `mvar') if `touse'
-		}
+	}
 		
 	if ("`mreg'"=="regress") {
 		qui predict mhat_M_D_r001 if e(sample), xb
 		qui gen phat_M_D_r001=normalden(`mvar', mhat_M_D_r001, e(rmse)) if `touse'
-		}
+	}
 	
 	/***********
 	COMPUTE IPWs
 	************/
-	
 	/*****SW1*****/
 	qui gen sw1_r001=0 if `dvar'==`dstar' & `touse'
 	
@@ -464,13 +450,20 @@ program define ipwventbs, rclass
 		
 	qui reg `yvar' [pw=sw3_r001] if `dvar'==`d' & `touse'
 	local Ehat_Y1M0=_b[_cons]
-		
-	qui reg `yvar' `dvar' `mvar' `inter' [pw=sw4_r001] if `touse'
-	
+
 	return scalar oe=`Ehat_Y1M1'-`Ehat_Y0M0'
 	return scalar ide=`Ehat_Y1M0'-`Ehat_Y0M0'
 	return scalar iie=`Ehat_Y1M1'-`Ehat_Y1M0'
-	return scalar cde=(_b[`dvar']+(_b[`inter']*`m'))*(`d'-`dstar')
+	
+	qui reg `yvar' `dvar' `mvar' `inter' [pw=sw4_r001] if `touse'
+	
+	if ("`nointeraction'" == "") {
+		return scalar cde=(_b[`dvar']+(_b[`inter']*`m'))*(`d'-`dstar')
+	}
+
+	if ("`nointeraction'" != "") {
+		return scalar cde=_b[`dvar']*(`d'-`dstar')
+	}
 	
 	est drop ///
 		Dmodel_given_C_r001 Dmodel_r001 ///
@@ -481,6 +474,6 @@ program define ipwventbs, rclass
 	
 	if ("`detail'"=="") {
 		drop sw1_r001 sw2_r001 sw3_r001 sw4_r001
-		}
+	}
 	
 end ipwventbs
