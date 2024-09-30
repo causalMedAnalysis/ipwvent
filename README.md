@@ -27,7 +27,7 @@ ipwvent depvar, dvar(varname) mvar(varname) lvar(varname) d(real) dstar(real) m(
 - `nointeraction`: Excludes treatment-mediator interaction in the outcome model.
 - `cxd`: Includes all two-way interactions between the treatment and baseline covariates in models for the exposure-induced confounder and mediator.
 - `lxd`: Includes two-way interaction between the treatment and exposure-induced confounder in the mediator model.
-- `censor`: Specifies that the inverse probability weights are censored at 1st and 99th percentiles.
+- `censor(numlist)`: Specifies that the inverse probability weights are censored at the percentiles supplied in `numlist'.
 - `detail`: Prints fitted models and saves variables containing the inverse probability weights.
 - `bootstrap_options`: All `bootstrap` options are available.
 
@@ -52,8 +52,8 @@ use nlsy79.dta
 // Default settings
 ipwvent std_cesd_age40, dvar(att22) lvar(ever_unemp_age3539) mvar(log_faminc_adj_age3539) cvars(female black hispan paredu parprof parinc_prank famsize afqt3) lreg(logit) mreg(regress) d(1) dstar(0) m(10.82)
 
-// Include all two-way interactions and censor the weights
-ipwvent std_cesd_age40, dvar(att22) lvar(ever_unemp_age3539) mvar(log_faminc_adj_age3539) cvars(female black hispan paredu parprof parinc_prank famsize afqt3) lreg(logit) mreg(regress) d(1) dstar(0) m(10.82) cxd lxd censor
+// Include all two-way interactions and censor the weights at 1st and 99th percentiles
+ipwvent std_cesd_age40, dvar(att22) lvar(ever_unemp_age3539) mvar(log_faminc_adj_age3539) cvars(female black hispan paredu parprof parinc_prank famsize afqt3) lreg(logit) mreg(regress) d(1) dstar(0) m(10.82) cxd lxd censor(1 99)
 ```
 
 ## Saved Results
