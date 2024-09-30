@@ -22,7 +22,7 @@ program define ipwventbs, rclass
 		[cxd] ///
 		[lxd] ///
 		[sampwts(varname numeric)] ///
-		[censor] ///
+		[censor(numlist min=2 max=2)] ///
 		[detail]
 	
 	qui {
@@ -421,7 +421,7 @@ program define ipwventbs, rclass
 	**************/
 	if ("`censor'"!="") {
 		foreach i of var sw1_r001 sw2_r001 sw3_r001 sw4_r001 {
-			qui centile `i' if `i'!=. & `touse', c(1 99) 
+			qui centile `i' if `i'!=. & `touse', c(`censor') 
 			qui replace `i'=r(c_1) if `i'<r(c_1) & `i'!=. & `touse'
 			qui replace `i'=r(c_2) if `i'>r(c_2) & `i'!=. & `touse'
 		}

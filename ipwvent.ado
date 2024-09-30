@@ -1,7 +1,7 @@
 *!TITLE: IPWVENT - causal mediation analysis of interventional effects using inverse probability weighting	
 *!AUTHOR: Geoffrey T. Wodtke, Department of Sociology, University of Chicago
 *!
-*! version 0.1 
+*! version 0.1 s
 *!
 
 program define ipwvent, eclass
@@ -22,7 +22,7 @@ program define ipwvent, eclass
 		cxd ///
 		lxd ///
 		sampwts(varname numeric) ///
-		censor ///
+		censor(numlist min=2 max=2) ///
 		detail * ]
 
 	qui {
@@ -58,6 +58,26 @@ program define ipwvent, eclass
 		local lreg : word `nlreg' of `lregtypes'
 	}	
 
+	if ("`censor'" != "") {
+		local censor1: word 1 of `censor'
+		local censor2: word 2 of `censor'
+
+		if (`censor1' >= `censor2') {
+			di as error "The first number in the censor() option must be less than the second."
+			error 198
+		}
+
+		if (`censor1' < 1 | `censor1' > 49) {
+			di as error "The first number in the censor() option must be between 1 and 49."
+			error 198
+		}
+
+		if (`censor2' < 51 | `censor2' > 99) {
+			di as error "The second number in the censor() option must be between 51 and 99."
+			error 198
+		}
+	}
+
 	/***COMPUTE POINT AND INTERVAL ESTIMATES***/
 	bootstrap ///
 		OE=r(oe) ///
@@ -69,7 +89,7 @@ program define ipwvent, eclass
 					dvar(`dvar') mvar(`mvar') lvar(`lvar') cvars(`cvars') ///
 					d(`d') dstar(`dstar') m(`m') ///
 					mreg(`mreg') lreg(`lreg') sampwts(`sampwts') ///
-					`nointeraction'  `cxd' `lxd' `censor'
+					`nointeraction'  `cxd' `lxd' censor(`censor')
 			
 	estat bootstrap, p noheader
 
@@ -79,7 +99,7 @@ program define ipwvent, eclass
 			dvar(`dvar') mvar(`mvar') lvar(`lvar') cvars(`cvars') ///
 			d(`d') dstar(`dstar') m(`m') ///
 			mreg(`mreg') lreg(`lreg') sampwts(`sampwts') ///
-			`nointeraction' `cxd' `lxd' `censor' `detail'
+			`nointeraction' `cxd' `lxd' censor(`censor') `detail'
 		
 		label var sw1_r001 "IPW for estimating E(Y(d*,Mtilde(d*|C)))"
 		label var sw2_r001 "IPW for estimating E(Y(d,Mtilde(d|C)))"
