@@ -27,7 +27,7 @@ ipwvent depvar, dvar(varname) mvar(varname) lvar(varname) d(real) dstar(real) m(
 - `nointeraction`: Excludes treatment-mediator interaction in the outcome model.
 - `cxd`: Includes all two-way interactions between the treatment and baseline covariates in models for the exposure-induced confounder and mediator.
 - `lxd`: Includes two-way interaction between the treatment and exposure-induced confounder in the mediator model.
-- `censor(numlist)`: Specifies that the inverse probability weights are censored at the percentiles supplied in `numlist'.
+- `censor(numlist)`: Specifies that the inverse probability weights are censored at the percentiles supplied in `numlist`.
 - `detail`: Prints fitted models and saves variables containing the inverse probability weights.
 - `bootstrap_options`: All `bootstrap` options are available.
 
