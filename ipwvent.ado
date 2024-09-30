@@ -1,7 +1,7 @@
 *!TITLE: IPWVENT - causal mediation analysis of interventional effects using inverse probability weighting	
 *!AUTHOR: Geoffrey T. Wodtke, Department of Sociology, University of Chicago
 *!
-*! version 0.1 s
+*! version 0.1 
 *!
 
 program define ipwvent, eclass
